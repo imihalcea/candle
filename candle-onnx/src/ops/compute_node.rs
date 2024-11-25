@@ -4,7 +4,8 @@ use crate::onnx::NodeProto;
 
 //This struct is used to represent a node in the computation graph
 //The idea is not to use the NodeProto directly in the computation graph
-//On a longer term, we may want to have a more optimized representation of the computation graph.
+//On a longer term, this can lead to a more optimized representation of the computation graph.
+//For now, it is just a wrapper around the NodeProto and the context
 pub struct ComputeNode<'a>{
     node_proto: &'a NodeProto,
     context: &'a HashMap<String, Tensor>
