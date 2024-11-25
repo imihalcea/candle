@@ -3,6 +3,7 @@ use crate::onnx::tensor_proto::DataType;
 use crate::onnx::{self, GraphProto};
 use candle::{bail, DType, Device, Result, Tensor};
 use std::collections::{HashMap, HashSet};
+use crate::ops::{registry, ComputeNode};
 
 pub type Value = Tensor;
 
@@ -317,6 +318,8 @@ fn simple_eval_(
             )
         }
     }
+
+    let registry = registry()?;
     // The nodes are topologically sorted so we can just process them in order.
     for node in graph.node.iter() {
         let get = |input_name: &str| match values.get(input_name) {
@@ -1944,7 +1947,12 @@ fn simple_eval_(
 
                 values.insert(node.output[0].clone(), out);
             }
-            op_type => bail!("unsupported op_type {op_type} for op {node:?}"),
+            op_type => {
+                let onnx_op = registry.get(op_type)?;
+                let cn = ComputeNode::new(&node, values);
+                let (name, value) = onnx_op.eval(&cn)?;
+                values.insert(name, value);
+            }
         }
     }
     graph

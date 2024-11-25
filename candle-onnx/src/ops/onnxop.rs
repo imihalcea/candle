@@ -31,7 +31,7 @@ impl Display for OnnxOpError {
 }
 
 pub trait OnnxOp {
-    const NAME: &'static str;
+    fn name(&self) -> &str;
     fn eval(&self, node: &ComputeNode) -> Result<OpOutput, OnnxOpError>;
 }
 
@@ -123,7 +123,9 @@ mod onnxop_registry_tests {
 
     struct DummyOp;
     impl OnnxOp for DummyOp {
-        const NAME: &'static str = "DummyOp";
+        fn name(&self) -> &str {
+            "DummyOp"
+        }
         fn eval(&self, _node: &ComputeNode) -> Result<OpOutput, OnnxOpError> {
             Ok(("dummy".to_string(), candle::Tensor::new(vec![1u8,1], &Device::Cpu).unwrap()))
         }
