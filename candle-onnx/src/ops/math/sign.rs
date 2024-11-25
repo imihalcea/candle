@@ -4,10 +4,6 @@ use crate::ops::OnnxOpError::ComputationFailed;
 
 pub(crate) struct Sign;
 impl OnnxOp for Sign {
-    fn name(&self) -> &str {
-        "Sign"
-    }
-
     fn eval(&self, node: &ComputeNode) -> Result<OpOutput, OnnxOpError> {
         let input = node.get_input(0)
             .ok_or_else(|| ComputationFailed("input 0 not found".to_string()))?;

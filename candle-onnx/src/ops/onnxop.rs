@@ -31,7 +31,6 @@ impl Display for OnnxOpError {
 }
 
 pub trait OnnxOp {
-    fn name(&self) -> &str;
     fn eval(&self, node: &ComputeNode) -> Result<OpOutput, OnnxOpError>;
 }
 
@@ -81,10 +80,11 @@ mod onnxop_registry_tests {
 
         //When
         registry.insert("DummyOp", dummy_op).unwrap();
-        let op = registry.get("DummyOp").unwrap();
+        let op = registry.get("DummyOp");
 
         //Then
-        assert_eq!(op.name(), "DummyOp");
+        assert!(op.is_ok());
+
     }
 
     #[test]
@@ -123,9 +123,6 @@ mod onnxop_registry_tests {
 
     struct DummyOp;
     impl OnnxOp for DummyOp {
-        fn name(&self) -> &str {
-            "DummyOp"
-        }
         fn eval(&self, _node: &ComputeNode) -> Result<OpOutput, OnnxOpError> {
             Ok(("dummy".to_string(), candle::Tensor::new(vec![1u8,1], &Device::Cpu).unwrap()))
         }
